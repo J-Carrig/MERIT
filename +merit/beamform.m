@@ -1,14 +1,19 @@
-function [img, sigs] = beamform(signals, axis_, points, delay, image_, varargin),
-  p = inputParser;
-  addOptional(p, 'max_memory', 1e9, @isnumeric);
-  addOptional(p, 'gpu', false, @islogical);
-  addOptional(p, 'window', @(a) a);
-  parse(p, varargin{:});
-  gpu = p.Results.gpu;
-  max_memory = p.Results.max_memory;
-  window = p.Results.window;
+function [img, sigs] = beamform(signals, axis_, points, delay, image_, options)
+arguments
+    signals 
+    axis_ 
+    points 
+    delay 
+    image_ 
+    options.max_memory {mustBeNumeric} = 1e9
+    options.gpu {mustBeNumericOrLogical} = false
+    options.window = @(a) a
+end
+  gpu = options.gpu;
+  max_memory = options.max_memory;
+  window = options.window;
 
-  if isreal(signals),
+  if isreal(signals)
     bytes = 8;
   else
     bytes = 16;
@@ -23,7 +28,7 @@ function [img, sigs] = beamform(signals, axis_, points, delay, image_, varargin)
     delay = {delay};
   end
 
-  if gpu,
+  if gpu
     try
       dev = gpuDevice();
       free_mem = dev.FreeMemory;
@@ -49,8 +54,8 @@ function [img, sigs] = beamform(signals, axis_, points, delay, image_, varargin)
   for r = 1:points_run:nPoints,
     for d = 1:numel(delay)
       rng = r:min(nPoints, r+points_run-1);
-      img(rng, d, :) = image_(window(...
-        merit.process.delay(signals, delay{d}(points(rng, :)), axis_)));
+      delayed_signals = merit.process.delay(signals, delay{d}(points(rng, :)), axis_);
+      img(rng, d, :) = image_(window(delayed_signals));
     end
   end
 
