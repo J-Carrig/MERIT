@@ -1,8 +1,6 @@
-% Getting started guide for MERIT
-% A basic guide to:
-%  - loading and visualising the sample data;
-%  - processing signals using the MERIT functions;
-%  - imaging with this toolbox.
+% based on getting_started script
+% semi functional - imaging cannot be completed in time domain as of
+% 07/08/2024
 
 %% Loading sample data
 % Details of the breast phantoms used to collect the sample data
@@ -44,23 +42,19 @@ subplot(2, 1, 1);
 data_channel1_td = merit.process.fd2td((data_channel1.*gausspulsemodfreq), frequencies, times);
 
 data_channel1_tdr = merit.process.td2fd(data_channel1_td, times, frequencies);
-channel1_phase_r = unwrap(angle(data_channel1_tdr));
 
 %plot time against data
-plot(frequencies, abs([data_channel1(:,1), data_channel1_tdr(:,1)]));
-xlabel('Frequency (Hz)');
-ylabel('Magnitude (dB)');
+
+plot(times, [data_channel1_td(:,1)]);
+xlabel('Time (s)');
+ylabel('data');
 legend('Original Scan', 'Rotated Scan');
-title(sprintf('Channel (%d, %d) Magnitude', channel_names(1, :)));
-% plot(times, [data_channel1_td(:,1)]);
-% xlabel('Time (s)');
-% ylabel('data');
-% legend('Original Scan', 'Rotated Scan');
-% title(sprintf('Channel (%d, %d) Magnitude', channel_names(1, :)));
+title(sprintf('Channel (%d, %d) Magnitude', channel_names(1, :)))
 
 %plot freqencies against phase
+
 subplot(2, 1, 2);
-plot(frequencies, [channel1_phase(:,1), channel1_phase_r(:,1)]);
+plot(frequencies, channel1_phase(:,1));
 xlabel('Frequency (Hz)');
 ylabel('Phase (rad)');
 legend('Original Scan', 'Rotated Scan');
